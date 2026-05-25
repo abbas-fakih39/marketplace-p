@@ -1,0 +1,370 @@
+{
+  "info": {
+    "name": "Marketplace API - TP8",
+    "description": "Collection complète de l'API Marketplace de services.\n\n## Utilisation\n1. Importer ce fichier dans Postman\n2. Importer aussi `postman_environment.json`\n3. Sélectionner l'environnement **Marketplace Local**\n4. Exécuter **Auth > Login** - le token est sauvegardé automatiquement\n5. Toutes les autres requêtes utilisent ce token via la variable `{{token}}`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Inscription et connexion. Le login sauvegarde automatiquement le token JWT dans la variable d'environnement `token`.",
+      "item": [
+        {
+          "name": "Register utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/register", "host": ["{{base_url}}"], "path": ["api", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nouveau@example.fr\",\n  \"password\": \"password\",\n  \"role\": \"ROLE_USER\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register prestataire",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/register", "host": ["{{base_url}}"], "path": ["api", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nouveaupresta@example.fr\",\n  \"password\": \"password\",\n  \"role\": \"ROLE_PRESTATAIRE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login (sauvegarde le token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.environment.set('token', json.token);",
+                  "    console.log('Token sauvegardé dans {{token}}');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice.dupont@prestataire.fr\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.environment.set('token', json.token);",
+                  "    console.log('Token admin sauvegardé');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@marketplace.fr\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login utilisateur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.environment.set('token', json.token);",
+                  "    console.log('Token user sauvegardé');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user1@marketplace.fr\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "description": "Gestion des services publiés par les prestataires.",
+      "item": [
+        {
+          "name": "Lister les services",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/services", "host": ["{{base_url}}"], "path": ["api", "services"] }
+          }
+        },
+        {
+          "name": "Détail d'un service",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/services/1", "host": ["{{base_url}}"], "path": ["api", "services", "1"] }
+          }
+        },
+        {
+          "name": "Créer un service (ROLE_PRESTATAIRE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/services", "host": ["{{base_url}}"], "path": ["api", "services"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Audit de sécurité web\",\n  \"description\": \"Analyse complète des vulnérabilités de votre application web.\",\n  \"prix\": 1200,\n  \"statut\": \"actif\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Modifier un service (propriétaire)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/services/1", "host": ["{{base_url}}"], "path": ["api", "services", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Création site vitrine - offre premium\",\n  \"prix\": 950,\n  \"statut\": \"actif\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Supprimer un service (propriétaire)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/services/1", "host": ["{{base_url}}"], "path": ["api", "services", "1"] }
+          }
+        },
+        {
+          "name": "[403] Créer service avec ROLE_USER",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/services", "host": ["{{base_url}}"], "path": ["api", "services"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Test accès refusé\",\n  \"description\": \"Cette requête doit retourner 403.\",\n  \"prix\": 100\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Demandes",
+      "description": "Gestion des demandes créées par les utilisateurs.",
+      "item": [
+        {
+          "name": "Lister mes demandes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/demandes", "host": ["{{base_url}}"], "path": ["api", "demandes"] }
+          }
+        },
+        {
+          "name": "Détail d'une demande",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/demandes/1", "host": ["{{base_url}}"], "path": ["api", "demandes", "1"] }
+          }
+        },
+        {
+          "name": "Créer une demande",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/demandes", "host": ["{{base_url}}"], "path": ["api", "demandes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Bonjour, j'ai besoin d'un site vitrine pour mon cabinet médical. Livraison souhaitée sous 3 semaines.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Changer statut d'une demande (ROLE_PRESTATAIRE)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/demandes/1/statut", "host": ["{{base_url}}"], "path": ["api", "demandes", "1", "statut"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"acceptee\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Refuser une demande (ROLE_PRESTATAIRE)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/demandes/2/statut", "host": ["{{base_url}}"], "path": ["api", "demandes", "2", "statut"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"refusee\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Supprimer une demande (propriétaire)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/demandes/1", "host": ["{{base_url}}"], "path": ["api", "demandes", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mises en relation",
+      "description": "Liaison entre un service (prestataire) et une demande (utilisateur).",
+      "item": [
+        {
+          "name": "Lister mes mises en relation",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/mises-en-relation", "host": ["{{base_url}}"], "path": ["api", "mises-en-relation"] }
+          }
+        },
+        {
+          "name": "Détail d'une mise en relation",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/mises-en-relation/1", "host": ["{{base_url}}"], "path": ["api", "mises-en-relation", "1"] }
+          }
+        },
+        {
+          "name": "Créer une mise en relation (ROLE_PRESTATAIRE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/mises-en-relation", "host": ["{{base_url}}"], "path": ["api", "mises-en-relation"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"demande_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Valider une mise en relation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/mises-en-relation/1/statut", "host": ["{{base_url}}"], "path": ["api", "mises-en-relation", "1", "statut"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"valide\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Refuser une mise en relation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/mises-en-relation/2/statut", "host": ["{{base_url}}"], "path": ["api", "mises-en-relation", "2", "statut"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"refuse\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "[409] Doublon mise en relation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/mises-en-relation", "host": ["{{base_url}}"], "path": ["api", "mises-en-relation"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": 1,\n  \"demande_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
