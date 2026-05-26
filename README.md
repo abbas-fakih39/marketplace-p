@@ -209,22 +209,35 @@ Les mots de passe sont hashés avec l'algorithme **auto** de Symfony (bcrypt par
 git clone <url-du-repo>
 cd marketplacephp
 
-# Installer les dépendances
+# Installer les dépendances PHP
 composer install
 
-# Configurer l'environnement
-cp .env .env.local
-# Éditer .env.local : renseigner DATABASE_URL avec vos credentials MySQL
+# (Optionnel) Installer des outils de développement
+composer require symfony/maker-bundle --dev
 
-# Générer les clés JWT (sur Windows, définir OPENSSL_CONF si nécessaire)
-php bin/console lexik:jwt:generate-keypair
+# Démarrer les services (MySQL, etc.) via Docker Compose
+docker compose up --build
 
-# Créer la base de données et appliquer les migrations
+# (Optionnel) Forcer la suppression de la base si vous réinitialisez l'environnement
+php bin/console doctrine:database:drop --force || true
+
+# Créer la base de données
 php bin/console doctrine:database:create
+
+# Générer une migration si vous avez modifié les entités
+php bin/console make:migration
+
+# Appliquer les migrations
 php bin/console doctrine:migrations:migrate --no-interaction
 
-# Charger les données de test
+# Charger les fixtures de test
 php bin/console doctrine:fixtures:load --no-interaction
+
+# Générer la paire de clés JWT (clé privée/public)
+php bin/console lexik:jwt:generate-keypair
+
+# Lancer le serveur de développement Symfony (sans TLS)
+symfony server:start --no-tls
 ```
 
 ### Lancer le serveur de développement
